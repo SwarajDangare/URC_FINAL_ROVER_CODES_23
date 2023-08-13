@@ -5,6 +5,7 @@ class IK
 {
   private:
     int dir_link1, pwm_link1, dir_link2, pwm_link2, dir_swivel, pwm_swivel;
+    int limit_1, limit_2, limit_3, limit_4, limit_5;
     int pwmswl, dirswl, pwm1, dir1, pwm2, dir2;
     int freq, L1channel, L2channel, Swchannel, resolution;
 
@@ -56,6 +57,29 @@ class IK
       pinMode(dir_link2, OUTPUT);
       pinMode(dir_swivel, OUTPUT);
     }
+    void setLimitPins( int l1, int l2, int l3, int l4, int l5)
+    {
+      limit_1 = l1;
+      limit_2 = l2;
+      limit_3 = l3;
+      limit_4 = l4;
+      limit_5 = l5;
+
+      pinMode(limit_1, INPUT);
+      pinMode(limit_2, INPUT);
+      pinMode(limit_3, INPUT);
+      pinMode(limit_4, INPUT);
+      pinMode(limit_5, INPUT);
+
+    }
+
+    void readLimit()
+    {
+      set_link[0] = 0;
+      set_link[1] = 90;
+      set_link[2] = 0;
+      Serial.println("LIMIT HIT!!!!");
+    }
 
     void set_pid(void)
     {
@@ -80,8 +104,8 @@ class IK
     {
       L1 = l1;
       L2 = l2;
-      max_reach = L1 + L2 - 2;
-      min_reach = 10;
+      max_reach = L1 + L2 - 7;
+      min_reach = L1 - L2 * cos(radians(35)) + 5;
     }
 
     void set_init_coordinates(void)
@@ -143,7 +167,7 @@ class IK
       jointangle2 = acos((R * R + set_Z * set_Z - L1 * L1 - L2 * L2) / (2 * L1 * L2));
       b = atan((L2 * sin(jointangle2)) / (L2 * cos(jointangle2) + L1));
       a = atan(set_Z / R);
-      jointangle1 = a + b;      
+      jointangle1 = a + b;
     }
 
     void arm_control(int X, int Y, int Z, float deltaT, int Reset)
@@ -172,28 +196,27 @@ class IK
       set_X += X * 0.5;
       set_Y += Y * 0.5;
       set_Z += Z * 0.5;
-      
+
       float current_pos = set_X * set_X + set_Y * set_Y + set_Z * set_Z;
-      float current_pos_XY = set_X * set_X + set_Y * set_Y;
       if (current_pos <= (max_reach * max_reach))
       {
-        if (current_pos_XY >= (min_reach * min_reach))
+        if (current_pos >= (min_reach * min_reach))
         {
           calculate_ik();
           Serial.println("1");
         }
-//        else if (set_Z > 0)
-//        {
-//          set_X += 1;
-//          set_Z += 1;
-////          calculate_ik();
-//          Serial.print("2");
-//        }
+        else if (set_Z > 0)
+        {
+          set_X += 1;
+          set_Z += 1;
+          //          calculate_ik();
+          Serial.print("2");
+        }
         else
         {
           set_X += 1;
-//          set_Z -= 1;
-//          calculate_ik();
+          set_Z -= 1;
+          //          calculate_ik();
           Serial.print("3");
         }
       }
@@ -201,25 +224,25 @@ class IK
       {
         set_X -= 1;
         set_Z -= 1;
-//        calculate_ik();
+        //        calculate_ik();
         Serial.print("4");
       }
       else if (set_Z >= 0 && set_X <= 0)
       {
         set_X += 1;
         set_Z -= 1;
-//        calculate_ik();
+        //        calculate_ik();
         Serial.print("5");
       }
       else
       {
         set_X -= 1;
         set_Z += 1;
-//        calculate_ik();
+        //        calculate_ik();
         Serial.print("6");
       }
 
-      
+
 
       //set the new angles
       set_link[0] = degrees(jointangle0) ;

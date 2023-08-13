@@ -55,41 +55,36 @@ void get_Grip_Cmd(char grip) {
 
     case '1': // safety
       Serial.println("Pitch Down");
-
-      target[0] -= 2;
-      target[1] += 2;
-
+      target[0] -= 4;
+      target[1] += 4;
       break;
 
     case '2': // safety
       Serial.println("Pitch Up");
-      target[0] += 2;
-      target[1] -= 2;
-
+      target[0] += 4;
+      target[1] -= 4;
       break;
 
     case '3': // safety
       Serial.println("Roll Right");
-      target[0] += 2;
-      target[1] += 2;
-
+      target[0] += 4;
+      target[1] += 4;
       break;
 
     case '4': // safety
       Serial.println("Roll Left");
-
-      target[0] -= 2;
-      target[1] -= 2;
+      target[0] -= 4;
+      target[1] -= 4;
       break;
 
     case '5': // safety
       Serial.println("Gripperr Close");
-      target[2] -= 20;
+      target[2] += 20;
       break;
 
     case '6': // safety
       Serial.println("Gripperr Open");
-      target[2] += 20;
+      target[2] -= 20;
       break;
 
     case '7': // safety
@@ -137,10 +132,10 @@ void set_Gripper()
 
   for (int k = 0; k < NMOTORS; k++)
   {
-    Serial.print("Target: ");
-    Serial.print(target[k]);
-    Serial.print(" Pos: ");
-    Serial.println(pos[k]);
+//    Serial.print("Target: ");
+//    Serial.print(target[k]);
+//    Serial.print(" Pos: ");
+//    Serial.println(pos[k]);
   }
   //  Serial.println();
 }
@@ -194,9 +189,9 @@ void setup() {
   Serial.println("Sare pins set hogaye!");
   delay(100);
 
-  pid[0].setParams(8, 0, 0, 230, 10, 1);
-  pid[1].setParams(8, 0, 0, 255, 10, 1);
-  pid[2].setParams(30, 0, 0, 255, 10, 1);
+  pid[0].setParams(8, 0, 0, 255, 15, 1);
+  pid[1].setParams(10, 0, 0, 255, 15, 1);
+  pid[2].setParams(30, 0, 0, 255, 15, 1);
   attachInterrupt(digitalPinToInterrupt(enca[0]), readEncoder<0>, RISING);
   attachInterrupt(digitalPinToInterrupt(enca[1]), readEncoder<1>, RISING);
   attachInterrupt(digitalPinToInterrupt(enca[2]), readEncoder<2>, RISING);
@@ -223,10 +218,10 @@ void loop()
     while (SerialPort.available())
     {
       char RxdChar = SerialPort.read();
-      Serial.println(RxdChar);
+//      Serial.println(RxdChar);
       get_Grip_Cmd(RxdChar);
       set_Gripper();
-      Serial.println("");
+//      Serial.println("");
     }
     //    Serial.println(rxBuffer);
   }

@@ -32,7 +32,7 @@ const int BUFFER_SIZE = 128;
 char rxBuffer[BUFFER_SIZE];
 int bufferIndex = 0;
 
-// Pins
+// Arm Pins
 const int pwm_pin[] = {pwm_swivel, pwm_link1, pwm_link2, Rpwm, Lpwm};
 const int dir_pin[] = {dir_swivel, dir_link1, dir_link2, Rdir, Ldir};
 const int limit_pin[] = {L1, L2, L3, L4, Stow};
@@ -132,6 +132,12 @@ void setup()
   // Set Drive Output Pins
   drive.setDrivePins(dir_pin[3], dir_pin[4], pwm_pin[3], pwm_pin[4]);
   ik.setArmPins(dir_pin[0], pwm_pin[0], dir_pin[1], pwm_pin[1], dir_pin[2], pwm_pin[2]);
+  ik.setLimitPins(limit_pin[0], limit_pin[1], limit_pin[2], limit_pin[3], limit_pin[4]);
+  attachInterrupt(digitalPinToInterrupt(limit_pin[0]), read_Limit, RISING);
+  attachInterrupt(digitalPinToInterrupt(limit_pin[1]), read_Limit, RISING);
+  attachInterrupt(digitalPinToInterrupt(limit_pin[2]), read_Limit, RISING);
+  attachInterrupt(digitalPinToInterrupt(limit_pin[3]), read_Limit, RISING);
+  attachInterrupt(digitalPinToInterrupt(limit_pin[4]), read_Limit, RISING);
   Serial.println("Sare pins set hogaye!");
   delay(100);
 
@@ -146,6 +152,11 @@ void setup()
 
   ik.set_init_coordinates();
 
+}
+
+void read_Limit()
+{
+  ik.readLimit();
 }
 
 void loop()
